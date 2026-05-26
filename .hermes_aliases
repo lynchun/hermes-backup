@@ -1,0 +1,4 @@
+# Hermes brain-swap aliases
+alias swap-codex='hermes config set model.provider openai-codex && echo "Switched to: Codex (GPT via Responses API)"'
+alias swap-deepseek='hermes config set model.provider deepseek && echo "Switched to: DeepSeek V4 Flash"'
+alias swap-check='hermes config show | grep -A2 "Model:"'

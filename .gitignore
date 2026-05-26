@@ -1,0 +1,16 @@
+.env
+*.token*
+*secret*
+auth.json
+*_token.json
+microsoft_credentials.json
+google_oauth_pending.json
+audio_cache/
+logs/
+sessions/
+state-snapshots/
+.curator_backups/
+.curator_state
+.usage.json
+.usage.json.lock
+.bundled_manifest
