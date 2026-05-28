@@ -1,6 +1,10 @@
 ---
 name: client-matter-analysis
-description: Analyse a client's contractual/commercial dispute with a third-party service provider. Read the brief, review agreements and correspondence, then produce a structured analysis covering obligations, timeline, breaches, defences, options, and legal context.
+description: Analyse a client's contractual/commercial dispute with a third-party service provider. Read the brief, review agreements and correspondence, then produce a structured analysis covering obligations, timeline, breaches, defences, options, and legal context. Outputs as markdown or .docx briefing paper with plain-language legal concepts. Covers large email evidence extraction (1000+ emails).
+metadata:
+  hermes:
+    tags: [legal, analysis, client, dispute, briefing, contract, evidence]
+    related_skills: [local-eml-deidentification, plan, document-collaboration]
 ---
 
 # Client Matter Analysis
@@ -92,6 +96,29 @@ Write to a markdown file alongside the project brief (or as specified by Lyndon)
 - **Include a warning box** for any document the client should NOT sign (e.g. amendments that benefit the other party).
 - **End with actionable next steps** in priority order.
 
+## Output Formats
+
+The analysis can be delivered in two formats. Choose based on the deliverable requested in the brief:
+
+| Format | When to use | Details |
+|--------|-------------|---------|
+| **Markdown file** | Quick internal analysis, adviser-only review | Write to a file like `[Client]_[Provider]_Initial_Analysis.md` alongside the project brief |
+| **.docx briefing paper** | Client-facing deliverable, solicitor handoff, formal evidence organisation | Full formatted document with title page, tables, and disclaimer. See `references/briefing-paper-docx-output.md` |
+
+### Client-Facing .docx Output
+
+When producing a .docx briefing paper, use `python-docx` (`pip3 install python-docx`). Key formatting: Calibri 11pt, `Light Grid Accent 1` tables, numbered/bullet lists, centre-aligned "CONFIDENTIAL" title page.
+
+**Writing voice for client briefings:** Write as if explaining directly to the client ("you" and "your"). No legalese. No hedging — state positions clearly. See `references/briefing-paper-docx-output.md` for the full workflow including section structure, formatting code snippets, and .docx-specific pitfalls.
+
+## Legal Concepts in Plain English
+
+Every analysis should include a section explaining relevant legal concepts in plain language. Use the table in `references/plain-language-legal-concepts.md` as a starting point. For each concept: bold name → one-paragraph explanation → why it matters for this case. No Latin unless it's the only known name.
+
+## Large Email Evidence Sets
+
+When the evidence comes from 1000+ de-identified emails, see `references/large-email-evidence-extraction.md` for the systematic extraction methodology: conversation mapping by subject, final-email-first reading order, timeline building, attachment verification, and the mandatory "What the Evidence Does NOT Establish" section.
+
 ## Pitfalls
 
 - **Don't give legal advice.** Frame your analysis as "this is what the position appears to be" and recommend HK counsel for specific questions (especially liability exclusions, gross negligence carve-outs, and jurisdiction-specific issues).
@@ -107,3 +134,17 @@ Write to a markdown file alongside the project brief (or as specified by Lyndon)
 ## Example
 
 A full worked example is available in `references/bmm-worner-analysis-example.md` — this was a real client dispute where BMM (a Hong Kong property management firm) was engaged to manage Greek property investments for an Australian client, with multiple account freezes, unauthorised billing, and undisclosed personal payments by the principal.
+
+## Reference Files
+
+| File | Content |
+|------|---------|
+| `references/bmm-worner-analysis-example.md` | Fully worked real-world analysis example (BMM/Hong Kong property dispute) |
+| `references/briefing-paper-docx-output.md` | .docx production workflow: section structure, writing voice, python-docx code, formatting, pitfalls |
+| `references/plain-language-legal-concepts.md` | Table of legal concepts with plain-English explanations (breach, gross negligence, fiduciary duty, etc.) |
+| `references/large-email-evidence-extraction.md` | Methodology for handling 1000+ de-identified emails: conversation mapping, attachment verification, gaps reporting |
+| `references/loan-amendment-characterisation-example.md` | Real pitfall: mischaracterising a loan amendment by relying on an email summary instead of reading the attachment |
+
+## Scripts
+
+- `scripts/generate_briefing_docx.py` — Python script that produces a .docx briefing paper from structured analysis data.

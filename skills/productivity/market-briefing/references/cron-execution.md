@@ -1,58 +1,35 @@
-# Cron Execution Notes
-
-Notes for running `market-briefing` as an unattended cron job (no user present).
-
-## Before Starting
-
-Always check if the cron prompt already exists before creating a duplicate:
-
-```bash
-cronjob action="list"
-```
+# Cron Execution Notes (Updated May 2026)
 
 ## The Cron Job
 
-Created 25 May 2026, job ID `80a62658b3c1`.
-Schedule: `0 8 * * 1-5` (weekdays at 8am).
-Deliver: `origin` (back to the originating chat).
+Job ID: `80a62658b3c1`
+Schedule: `0 8 * * 1-5` (weekdays at 8am Sydney)
+Delivery: `local` (saves to session)
+Skills loaded: `lyndon-investment-style`
 
-## Skill Loading
+The `lyndon-investment-style` skill provides the investment philosophy lens. The cron prompt itself contains the full data-collection workflow (TradingView watchlist, Bloomberg RSS, credit balances, Tom Lee/Dave Hunter via Google News RSS).
 
-The cron prompt should load these skills in order:
-```
-skills=["market-briefing", "xurl"]
-```
+## Delivery
 
-- `market-briefing` — playbook, source behavior, pitfalls
-- `xurl` — X/Twitter API access for Tom Lee/Dave Hunter
+Delivery is `local` — the briefing is saved to the session store and visible when the user opens Hermes. Telegram delivery was attempted but not yet working reliably via cron (the cron `run` command's `deliver` parameter does not override the job's stored delivery setting — you must `update` the job to change delivery, then `run`).
 
-## Prompt Structure
+To test Telegram delivery: update the job to `deliver=telegram:1505823420`, run it, then switch back to `deliver=local`.
 
-The cron prompt MUST be self-contained — no current-chat context. Include:
-1. Full list of what to gather (indices, commodities, headlines, balances, commentary)
-2. Where to check for each item
-3. That the agent must make reasonable defaults (no user to ask)
-4. That SILENT mode is available if there's nothing new to report
+## Data Sources (What Works)
 
-## Output Format
+| Source | Method |
+|--------|--------|
+| TradingView watchlist #24551192 | `browser_navigate` — one call gets SPY, NDX, VIX, GOLD, SILVER, SILJ, GDX, GDXJ, DXY, TLT, TMF |
+| WTI Crude (CL=F) | `browser_navigate` to Yahoo Finance CL=F — NOT in TradingView watchlist |
+| Bloomberg headlines | `curl -s https://feeds.bloomberg.com/markets/news.rss` |
+| ZeroHedge | `curl` Google News RSS for site:zerohedge.com |
+| Tom Lee / Dave Hunter | Google News RSS search (fallback when xurl unavailable) |
+| Credit balances | `terminal()` with curl to OpenRouter + DeepSeek API endpoints |
 
-Final response is auto-delivered. Structure as:
-- Section headers with emoji indicators
-- Tables for numeric data
-- ⚠ for notable moves (crashes, breakouts)
-- ❌ for unavailable data (note WHY unavailable)
-- ✅ for successfully checked items
+## What Changed (from earlier versions)
 
-## What This Session Proved
-
-The cron approach works for:
-- Yahoo Finance data extraction (browser tool)
-- API balance retrieval (terminal + curl)
-- Headline aggregation from Yahoo Finance's multi-source feed
-
-The cron approach FAILS for:
-- Direct X/Twitter feed access (needs xurl CLI)
-- Bloomberg/Reuters article access (bot-detection)
-- Search engine results (CAPTCHA)
-
-Fix: ensure `xurl` skill is loaded in the cron prompt, and use it for `@fundstrat`, `@DaveHcontrarian`, `@zerohedge` queries.
+- **TradingView watchlist** replaced Yahoo Finance homepage + 6 individual ticker pages. One browser call instead of 7.
+- **Bloomberg RSS** replaced Bloomberg.com direct access (was CAPTCHA-blocked).
+- **Google News RSS fallback** for Tom Lee/Dave Hunter when xurl is unavailable.
+- **Credit balances** added — OpenRouter `limit_remaining` and DeepSeek `balance_infos[0].total_balance`.
+- **Briefing format simplified** — concise, no watchlist section, no editorializing, WTI only.

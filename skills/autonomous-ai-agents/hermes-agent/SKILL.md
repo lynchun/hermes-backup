@@ -386,6 +386,27 @@ Edit with `hermes config edit` or `hermes config set section.key value`.
 
 Full config reference: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
 
+### Telegram Platform Config Pitfall
+
+**The `send_message` tool and cron delivery system read `platforms.telegram.token` from config.yaml, NOT the top-level `telegram:` section.** If the token is placed under the top-level `telegram:` key (alongside `allowed_chats`, `reactions`, etc.), it won't be found by the tool. The gateway's `_apply_env_overrides()` bridges some fields from the top-level telegram section into platforms, but NOT the `token` field.
+
+Correct placement:
+```yaml
+platforms:
+  telegram:
+    enabled: true
+    token: "123456:ABC-DEF..."   # ← HERE, not under top-level telegram:
+```
+
+Incorrect placement (will cause "You must pass the token" error):
+```yaml
+telegram:
+  allowed_chats: ''
+  token: "123456:ABC-DEF..."     # ← WRONG — tool can't find it here
+```
+
+The GatewayConfig bridging code (around line 989 in gateway/config.py) processes `require_mention`, `mention_patterns`, `guest_mode`, `free_response_chats`, `allowed_chats`, `ignored_threads`, `reactions`, `proxy_url` from the top-level telegram section but does NOT bridge `token`. The `_apply_env_overrides()` function reads `os.getenv("TELEGRAM_BOT_TOKEN")` and sets `platforms[Platform.TELEGRAM].token`, but this env var may not be set in subprocess contexts (e.g., `execute_code`, `terminal` tool subprocesses, or the send_message tool handler).
+
 ### Providers
 
 20+ providers supported. Set via `hermes model` or `hermes setup`.
@@ -929,6 +950,23 @@ and logs — avoids shell-escaping backslashes in bash.
 
 ## Troubleshooting
 
+### Self-verification before delivery
+
+**Always verify your own output before telling the user it's ready.**
+When you claim a file is complete, open it and check. Common failures that
+self-verification catches:
+
+- HTML files with placeholder content that wasn't replaced (check for `img`
+  tags, verify image paths resolve)
+- Files written to wrong location (check with `ls -la`)
+- Config changes that didn't persist (read back the file)
+- Image generation that returned text instead of image data (check file size)
+
+If the user has to tell you something is broken, you failed the self-check.
+This is a hard rule — the user's frustration signal "cumon man, no pics! dont
+forget to test your work before you ask me to check myself, ok?" applies to
+ALL deliverable types, not just images.
+
 ### Checking actual spend per provider
 See `references/provider-billing.md` — don't estimate costs, retrieve real data.
 
@@ -936,6 +974,48 @@ See `references/provider-billing.md` — don't estimate costs, retrieve real dat
 1. Check `stt.enabled: true` in config.yaml
 2. Verify provider: `pip install faster-whisper` or set API key
 3. In gateway: `/restart`. In CLI: exit and relaunch.
+
+### Telegram vision/image crash
+If images sent on Telegram cause a `400 unknown variant image_url` error:
+See `references/telegram-vision-crash-fix.md`. Quick fix:
+```bash
+hermes config set auxiliary.vision.provider openrouter
+hermes config set auxiliary.vision.model google/gemini-2.5-flash
+```
+Restart the gateway after.
+
+### Telegram token not found (send_message / cron delivery failure)
+
+The `send_message` tool and cron delivery read the bot token from
+`platforms.telegram.token` in `config.yaml` — NOT from the top-level
+`telegram:` section and NOT from `.env` environment variables.
+
+**Symptom:** `send_message` fails with "You must pass the token". Cron
+delivery fails with "no delivery target resolved". Meanwhile the gateway
+connects to Telegram just fine (it uses a different code path that falls
+back to `os.environ`).
+
+**Root cause:** Two separate token locations:
+- Gateway adapter → reads `TELEGRAM_BOT_TOKEN` from `.env` (via `_apply_env_overrides()`)
+- `send_message` tool → reads `platforms.telegram.token` from `config.yaml` (via `load_gateway_config()` → `PlatformConfig.from_dict()`)
+
+The top-level `telegram:` section in config.yaml is NOT bridged into the
+platforms config for the `token` field — the bridging code only handles
+`require_mention`, `allowed_chats`, `reactions`, etc.
+
+**Fix:** Add the token under `platforms.telegram.token`:
+```yaml
+platforms:
+  telegram:
+    enabled: true
+    token: "YOUR_BOT_TOKEN_HERE"
+```
+Restart the gateway after. Test with `send_message(target="telegram:CHAT_ID", message="test")`.
+
+**Security note:** This puts the token in `config.yaml` (committed to git
+backups). If the backup repo is private this is fine; for public repos,
+strip the token from config and rely on the `.env` → `_apply_env_overrides()`
+path (which only works for the gateway, not for cron delivery or `send_message`).
 
 ### Tool not available
 1. `hermes tools` — check if toolset is enabled for your platform
@@ -947,6 +1027,7 @@ See `references/provider-billing.md` — don't estimate costs, retrieve real dat
 2. `hermes login` — re-authenticate OAuth providers
 3. Check `.env` has the right API key
 4. **Copilot 403**: `gh auth login` tokens do NOT work for Copilot API. You must use the Copilot-specific OAuth device code flow via `hermes model` → GitHub Copilot.
+5. **Telegram vision crashes**: If images sent on Telegram fail with `unknown variant 'image_url'`, pin `auxiliary.vision.provider` to `openrouter` and `auxiliary.vision.model` to `google/gemini-2.5-flash`. See `references/telegram-vision-setup.md` for full fix.
 
 ### Changes not taking effect
 - **Tools/skills:** `/reset` starts a new session with updated toolset
@@ -968,6 +1049,8 @@ Common gateway problems:
 - **Gateway dies on SSH logout**: Enable linger: `sudo loginctl enable-linger $USER`
 - **Gateway dies on WSL2 close**: WSL2 requires `systemd=true` in `/etc/wsl.conf` for systemd services to work. Without it, gateway falls back to `nohup` (dies when session closes).
 - **Gateway crash loop**: Reset the failed state: `systemctl --user reset-failed hermes-gateway`
+- **Telegram platform auto-paused**: After 10 consecutive connection failures, Telegram is paused with "telegram paused after 10 consecutive failures". Restart the gateway or use the in-session `/platform resume telegram` slash command.
+- **Cron delivery override**: When running a cron job manually, the `deliver` parameter on `cronjob run` does NOT override the job's stored delivery setting. Update the job's delivery first, then run. After testing, switch it back.
 
 ### macOS screen capture troubleshooting
 
@@ -980,6 +1063,7 @@ When Peekaboo `see` / `image` returns TCC permission errors or `screencapture -w
 ### Platform-specific issues
 - **Discord bot silent**: Must enable **Message Content Intent** in Bot → Privileged Gateway Intents.
 - **Slack bot only works in DMs**: Must subscribe to `message.channels` event. Without it, the bot ignores public channels.
+- **Telegram `send_message` token not found**: The `send_message` tool reads `token` from `platforms.telegram.token` in config.yaml, NOT from the top-level `telegram:` section. If you get "You must pass the token" even though `TELEGRAM_BOT_TOKEN` is in `.env`, add `token: "..."` under `platforms → telegram:` explicitly. The bridging code that reads the top-level `telegram:` section does NOT process the `token` field — only `_apply_env_overrides()` does, and it may not run in the agent process context.
 - **Windows-specific issues** (`Alt+Enter` newline, WinError 10106, UTF-8 BOM config, test suite, line endings): see the dedicated **Windows-Specific Quirks** section above.
 
 ### Open WebUI / API Server
@@ -1016,6 +1100,8 @@ hermes config set auxiliary.vision.model <model_name>
 | Env variables | `hermes config env-path` or [Env vars reference](https://hermes-agent.nousresearch.com/docs/reference/environment-variables) |
 | CLI commands | `hermes --help` or [CLI reference](https://hermes-agent.nousresearch.com/docs/reference/cli-commands) |
 | Gateway logs | `~/.hermes/logs/gateway.log` |
+| Telegram token config | `references/telegram-send-message-token-config.md` — token must be under `platforms.telegram.token`, not top-level |
+| ComfyUI Python 3.14 | `references/comfyui-python314-launch-bug.md` — workaround for asyncio crash |
 | Session files | `~/.hermes/sessions/` or `hermes sessions browse` |
 | Source code | `~/.hermes/hermes-agent/` |
 
@@ -1043,6 +1129,15 @@ Key workflow:
 2. Base64 encode
 3. POST to `https://openrouter.ai/api/v1/chat/completions` with image_url content
 4. Parse description for colours, typography, layout, mood
+
+## Image Generation via OpenRouter
+
+When `image_generate` is unavailable (no FAL_KEY), generate images directly
+through OpenRouter chat completions. Working model: `openai/gpt-5-image-mini`.
+See **[references/openrouter-image-generation.md](references/openrouter-image-generation.md)**.
+
+Gemini image models on OpenRouter DO NOT work for generation — they return
+encrypted C2PA provenance data. Use OpenAI's image models instead.
 
 ## Contributor Quick Reference
 

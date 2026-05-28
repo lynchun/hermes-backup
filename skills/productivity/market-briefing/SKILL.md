@@ -89,7 +89,7 @@ browser_navigate("https://finance.yahoo.com/")
 ```
 Read S&P 500, NASDAQ, VIX, Gold from the top bar. Then navigate to individual tickers for Silver (SI=F), SILJ, GDX. Same WTI rule applies.
 
-### Step 3: API Balances
+### Step 2: API Balances
 From terminal:
 ```bash
 # OpenRouter
@@ -101,19 +101,19 @@ curl -s https://api.deepseek.com/user/balance \
   -H "Authorization: Bearer $(grep DEEPSEEK_API_KEY ~/.hermes/.env | cut -d= -f2)"
 ```
 
-### Step 4: Market Headlines
+### Step 3: Market Headlines
 Yahoo Finance homepage shows headlines from multiple sources (Bloomberg, Reuters, AFP, FT, Yahoo). Scroll down to read them. Key sections:
 - Top banner story (latest big move driver)
 - "Latest News" section with multi-source aggregation
 
-### Step 5: X/Twitter Commentary (Tom Lee, Dave Hunter)
+### Step 4: X/Twitter Commentary (Tom Lee, Dave Hunter)
 Load the `xurl` skill, then:
 ```
 xurl search "from:fundstrat"
 xurl search "from:DaveHcontrarian"
 ```
 
-### Step 6: Check Market Calendar
+### Step 5: Check Market Calendar
 Before reporting "yesterday's close", check if today is a US market holiday:
 - Memorial Day (last Monday of May)
 - Independence Day (July 4)

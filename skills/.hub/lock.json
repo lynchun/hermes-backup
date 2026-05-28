@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "installed": {
+    "outlines": {
+      "source": "official",
+      "identifier": "official/mlops/inference/outlines",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:64c71ae5491d07e6",
+      "install_path": "mlops/inference/outlines",
+      "files": [
+        "SKILL.md",
+        "references/backends.md",
+        "references/examples.md",
+        "references/json_generation.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-05-28T11:46:06.600685+00:00",
+      "updated_at": "2026-05-28T11:46:06.600685+00:00"
+    },
+    "axolotl": {
+      "source": "official",
+      "identifier": "official/mlops/training/axolotl",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:08d6156e208d179a",
+      "install_path": "mlops/training/axolotl",
+      "files": [
+        "SKILL.md",
+        "references/api.md",
+        "references/dataset-formats.md",
+        "references/index.md",
+        "references/other.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-05-28T11:46:06.608989+00:00",
+      "updated_at": "2026-05-28T11:46:06.608989+00:00"
+    },
+    "trl-fine-tuning": {
+      "source": "official",
+      "identifier": "official/mlops/training/trl-fine-tuning",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:45f55cf60cf10a3a",
+      "install_path": "mlops/training/trl-fine-tuning",
+      "files": [
+        "SKILL.md",
+        "references/dpo-variants.md",
+        "references/grpo-training.md",
+        "references/online-rl.md",
+        "references/reward-modeling.md",
+        "references/sft-training.md",
+        "templates/basic_grpo_training.py"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-05-28T11:46:06.611818+00:00",
+      "updated_at": "2026-05-28T11:46:06.611818+00:00"
+    },
+    "unsloth": {
+      "source": "official",
+      "identifier": "official/mlops/training/unsloth",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:57a800707ecbbbd6",
+      "install_path": "mlops/training/unsloth",
+      "files": [
+        "SKILL.md",
+        "references/index.md",
+        "references/llms-full.md",
+        "references/llms-txt.md",
+        "references/llms.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-05-28T11:46:06.621667+00:00",
+      "updated_at": "2026-05-28T11:46:06.621667+00:00"
+    }
+  }
+}

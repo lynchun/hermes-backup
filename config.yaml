@@ -348,6 +348,7 @@ platforms:
     enabled: true
   telegram:
     enabled: true
+    token: "8769027044:AAF8eoCKszAYtSs0SNFY952JwEkg9PnH_xk"
 prefill_messages_file: ''
 privacy:
   redact_pii: false

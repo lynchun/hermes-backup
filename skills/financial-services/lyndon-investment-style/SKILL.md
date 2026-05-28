@@ -54,6 +54,7 @@ When compiling the daily market briefing for Lyndon, follow these rules:
 - Extra labels on tickers ("← Junior silver miners", "← Senior gold miners")
 - Long-form explanations of market dynamics — one-sentence drivers only
 - Fluff, filler, verbose framing
+- **NO editorial nudges.** If DeepSeek balance is low, state the number. Do NOT add "consider topping up" or similar. If a holding aligns with a market theme, state the data. Do NOT add "your positioning maps to this thesis."
 
 ### Data sources
 - Primary: TradingView watchlist #24551192 (see `references/tradingview-watchlist.md` for full symbol list). One browser hit covers SPY, NDX, VIX, GOLD, SILVER, SILJ, GDX, GDXJ, DXY, TLT, TMF.
@@ -65,9 +66,9 @@ When compiling the daily market briefing for Lyndon, follow these rules:
 
 ### Pitfalls
 
-- **Credit balances: query the actual API, never estimate or guess.** The user has access to the real numbers and will call out estimates. Use `curl` against the actual endpoints:
-  - OpenRouter: `curl -s https://openrouter.ai/api/v1/auth/key -H "Authorization: Bearer $OPENROUTER_API_KEY"`
-  - DeepSeek: `curl -s https://api.deepseek.com/user/balance -H "Authorization: Bearer $DEEPSEEK_API_KEY"`
+- **Credit balances: query the actual API, never estimate or guess.** The user expects live numbers. Use the terminal tool to curl the endpoints with the respective API key env var in the auth header:
+  - OpenRouter: GET https://openrouter.ai/api/v1/auth/key (Bearer auth)
+  - DeepSeek: GET https://api.deepseek.com/user/balance (Bearer auth)
   If a balance number wasn't retrieved from the live API, don't present it as a fact. Say "could not retrieve."
 - **Cron delivery: always verify `deliver` is set to `origin`**, not `local`. A `local` delivery writes output to disk silently — the user never sees it. When creating or updating a briefing cron job, explicitly confirm the delivery target.
 - **Yahoo Finance ticker bar shows Brent, not WTI.** Navigate to CL=F specifically.

@@ -3,14 +3,14 @@ name: video-promo-pipeline
 description: |-
   Build a reusable HyperFrames-based video promo pipeline. Template-based:
   design the visual identity once, then swap assets per release to generate
-  social-media-ready promos. For label-specific templates (Unchained Recordings
-  design language) see the unchained-promo-templates skill instead.
+  social-media-ready promos. Includes label-specific brand templates for
+  Unchained Recordings (DnB label) in references/unchained-brand-templates.md.
 version: 1.1.0
 author: Epictetus
 metadata:
   hermes:
     tags: [video, promotion, hyperframes, music, social-media, creative]
-    related_skills: [hyperframes, hyperframes-cli, hyperframes-registry, unchained-promo-templates]
+    related_skills: [hyperframes, hyperframes-cli, hyperframes-registry]
 ---
 
 # Video Promo Pipeline
@@ -183,6 +183,19 @@ Every multi-scene composition MUST:
 2. Use entrance animations on every scene (`gsap.from()`)
 3. Never use exit animations except on the final scene
 4. The last scene may fade elements out
+
+## Label-Specific Templates
+
+The pipeline supports per-label brand templates. For **Unchained Recordings** (DnB label), the complete design language and 7 template variations are documented in `references/unchained-brand-templates.md`. Key Unchained-specific rules:
+
+- **Drop-synced editing is mandatory** — every cut, reveal, and transition lands on the kick or snare
+- **Face-Left / Name-Right** is the primary template (Template 1)
+- **Colours:** artist names = blue (#2266cc), track titles = purple (#8844aa), EP labels = red (#ff3355)
+- **Font:** Custom "Unchained" blocky sans-serif all-caps
+- **Background:** Always pure black (#000)
+- **Project path:** `~/Unchained/unchained-promos/`
+
+For other labels, follow the generic template architecture in this skill and adapt colours/fonts/layout to match the label's brand. See the Unchained reference as a worked example of how to structure label-specific guidelines.
 
 ## Workflow per Release
 
