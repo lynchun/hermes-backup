@@ -303,8 +303,8 @@ memory:
   user_profile_enabled: true
 model:
   base_url: https://api.deepseek.com
-  default: deepseek-v4-pro
-  provider: deepseek
+  default: gpt-5.3-codex
+  provider: openai-codex
 model_catalog:
   enabled: true
   providers: {}
@@ -348,7 +348,7 @@ platforms:
     enabled: true
   telegram:
     enabled: true
-    token: "8769027044:AAF8eoCKszAYtSs0SNFY952JwEkg9PnH_xk"
+    token: 8769027044:AAF8eoCKszAYtSs0SNFY952JwEkg9PnH_xk
 prefill_messages_file: ''
 privacy:
   redact_pii: false

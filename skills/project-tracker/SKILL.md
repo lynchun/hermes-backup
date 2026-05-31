@@ -7,21 +7,14 @@ category: productivity
 # Active Projects
 
 ## 1. Assessment List Definitions (ACTIVE)
-Helping Scientology students understand assessment list items used for auditor training. Each item gets a multilanguage reference sheet (EN/繁體中文/日本語) with definitions.
-
-**Deliverables:** Typst-generated PDFs with GeoPandas continent maps, numbered circles, 3-language definitions.
+**Batch build in progress (May 2026):** 5 new lists — Animals (55), Trees (62), Colors (41), Transport (51), Instruments (60). ~295 items total. Data files at ~/Desktop/{name}_data.py. ComfyUI image generation overnight. Pipeline at `assessment-list-guide` skill.
 
 **Completed:**
 - Vegetables (48 items, 95MB PDF)
-- Countries (68 countries across 6 continents — Africa, Europe, Asia, North America, South America, Oceania). PDFs at ~/Desktop/Country_Reference/
-- **Fruit** (58 fruits, 1.7MB PDF at ~/ORG BOARD/Div 6 (New Contacts, PR)/PUBLIC RELATIONS/Volunteer Work/Internship/fruit_guide.pdf)
-- Pipeline saved as `assessment-list-guide` skill with template at templates/build_guide.py
+- Countries (68 countries across 6 continents). PDFs at ~/Desktop/Country_Reference/
+- Fruit (58 fruits, 1.7MB PDF at ~/ORG BOARD/Div 6/.../fruit_guide.pdf)
 
-**Next:** Dogs list. docx already in Assessment listing defintions folder.
-
-**Location:** ~/Desktop/Country_Reference/ (countries), ~/ORG BOARD/Div 6/ (vegetables, fruits, dogs)
-**Pipeline for non-map lists:** Docx extract → translate → PIL illustrations → HTML → Chrome PDF (see `assessment-list-guide` skill)
-**Pipeline for country maps:** Docx extract → translate → GeoPandas 50m maps → Typst → PDF
+**Next:** Dogs list after current batch.
 
 ## 2. Scientology Mission of Leichhardt (PENDING)
 Two workstreams:
@@ -42,8 +35,12 @@ Full automation for new artist releases:
 - Generate social media post images, banners from templates
 - Note: Label Engine cost may be replaced later
 
-## 5. CCHR Australia (PENDING)
-Social media posting and management.
+## 5. CCHR Australia (ACTIVE — Research Phase)
+**Daily research sweep** running: Mon-Sun 7am, delivers to Telegram. Monitors psychiatric abuse discourse across web, Reddit, Twitter/X, and 17 trusted sources. Output: top 5 trending items + suggested post angles.
+
+**Skill:** `cchr-research` with keyword strategy, trusted sources, and narrative themes.
+**Cron:** job `266a1079b622`,`deliver=telegram:1505823420`.
+**Next:** Content calendar + social media posting workflow when research engine has enough source material.
 
 ## 6. Unchained Marketing (PENDING)
 Monthly/weekly themed social media series to excite audiences.
@@ -65,6 +62,27 @@ Based on Komputer Mechanic's Hermes Dashboard tutorial:
 - Activity logging, cron calendar, Kanban board
 - Tutorial: https://komputermechanic.com/tutorials/hermes-dashboard
 - Video: https://www.youtube.com/watch?v=t6W_Zpohb7g
+
+## 9. Voice Outreach Agent (NEW)
+Set up an AI-assisted calling workflow to contact people and collect information that is slow/impractical over email.
+
+**Goal:**
+- Place structured outbound calls
+- Ask approved question scripts
+- Capture transcript/recording (where lawful)
+- Summarize findings + next actions back to Lyndon
+
+**Phase 1 scope (pilot):**
+- One contact type
+- 3–5 fixed questions
+- Retry/no-answer policy
+- Standard summary report format
+- Compliance checklist (consent/disclosure by jurisdiction)
+
+**Pending decisions:**
+- Telephony stack (Twilio / Vapi / Retell / other)
+- Caller identity + disclosure wording
+- Escalation rules to human handoff
 
 ## User Directive
 One project at a time — discipline over complexity. Record projects for future reference but do NOT start new ones without explicit direction.

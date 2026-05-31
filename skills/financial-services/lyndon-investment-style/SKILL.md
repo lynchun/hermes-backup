@@ -70,7 +70,8 @@ When compiling the daily market briefing for Lyndon, follow these rules:
   - OpenRouter: GET https://openrouter.ai/api/v1/auth/key (Bearer auth)
   - DeepSeek: GET https://api.deepseek.com/user/balance (Bearer auth)
   If a balance number wasn't retrieved from the live API, don't present it as a fact. Say "could not retrieve."
-- **Cron delivery: always verify `deliver` is set to `origin`**, not `local`. A `local` delivery writes output to disk silently — the user never sees it. When creating or updating a briefing cron job, explicitly confirm the delivery target.
+- **Cron delivery: always verify `deliver` is set to `origin` or a specific Telegram target**, not `local`. A `local` delivery writes output to disk silently — the user never sees it. When creating or updating a briefing cron job, explicitly confirm the delivery target.
+- **Cron delivery silent failure: the scheduler logs "delivered" even when the gateway is offline.** If the gateway process is down (check with `hermes gateway status` or `launchctl list | grep hermes`), cron jobs will generate output but it never reaches the user. The scheduler's "delivered" message only means it handed off to the delivery system — not that the message actually reached Telegram. If the user says they didn't receive a scheduled briefing, check: (a) `~/.hermes/logs/agent.log` for "delivered to" at the expected time, (b) gateway status — if it was down, the delivery was queued and lost. A gateway health watchdog cron job (`gateway-watchdog.sh`) alerts via direct Telegram API call when the gateway is dead.
 - **Yahoo Finance ticker bar shows Brent, not WTI.** Navigate to CL=F specifically.
 
 ### Tone

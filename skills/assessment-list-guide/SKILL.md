@@ -109,6 +109,7 @@ Image paths: `file://{IMG_DIR}/{filename}.png`
 - Fixed prompt: "isolated on pure white seamless background, no surface, floating, high key"
 - Fixed seeds = reproducible images
 - Python 3.14 asyncio bug — launch ComfyUI directly: `cd ~/Documents/comfy/ComfyUI && .venv/bin/python main.py --listen 127.0.0.1 --port 8188`
+- **CRITICAL — Python 3.14 + MPS BrokenPipeError (May 2026):** The KSampler may fail with `[Errno 32] Broken pipe` on Python 3.14.2 + MPS backend, even with euler/normal at 768x768. TQDM_DISABLE=1 and stderr redirect do NOT fix this. If every generation returns `status: error` with BrokenPipeError, abandon ComfyUI and use OpenRouter image generation instead (see `references/openrouter-image-gen.md`). Cost: ~$0.03/image.
 
 ### Filename consistency
 - Breed/item names MUST match EXACTLY between build script (DOGS list) and image gen script (breed list)
@@ -128,6 +129,11 @@ Image paths: `file://{IMG_DIR}/{filename}.png`
 - Switch to reviewer hat: look for every reason it ISN'T good enough
 - Compare against vegetable_guide.html gold standard side-by-side
 - Document findings, fix, re-QC until clean
+
+### Subagent delegation
+- **DO NOT use `delegate_task` for translation dictionary work.** During a 5-list, ~295-item bulk build, subagents tasked with building Python translation tuples all claimed completion ("file written", "55 tuples created") but wrote EMPTY FILES. Subagent summaries frequently hallucinate file creation.
+- Translation data MUST be written directly by the parent agent via `write_file`. This is deterministic and immediately verifiable.
+- For speed on multi-list builds: use `write_file` sequentially (fast, ~1s per file) rather than parallel subagents.
 
 ## Reference files
 - Vegetable guide (gold standard): `~/ORG BOARD/Div 6 (New Contacts, PR)/PUBLIC RELATIONS/Volunteer Work/Internship/vegetable_guide.html`
